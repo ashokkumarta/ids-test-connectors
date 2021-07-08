@@ -17,6 +17,7 @@ services:
     # Enable this port mappings for debugging or UI access from localhost
     ports:
       - "8080:8080"
+      - "29292:29292"
     networks:
       - ids-dist
       - ids-local

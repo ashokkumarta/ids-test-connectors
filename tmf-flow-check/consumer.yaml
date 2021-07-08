@@ -1,0 +1,49 @@
+version: '3.7'
+services:
+
+  # The core platform, mounts docker control socket and route definition into the image
+  consumer-core:
+    image: ashokkumarta/ids-trusted-connector
+    pull_policy: always
+    tty: true
+    stdin_open: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../deploy/allow-all-flows.pl:/root/deploy/allow-all-flows.pl
+      - ../etc/settings.mapdb:/root/etc/settings.mapdb
+      - ../etc/consumer-keystore.p12:/root/etc/consumer-keystore.p12
+      - ../etc/truststore.p12:/root/etc/truststore.p12
+      - ./consumer-config.xml:/root/deploy/consumer-config.xml
+    # Enable this port mappings for debugging or UI access from localhost
+    ports:
+      - "8080:8080"
+    networks:
+      - ids-wide
+
+  data-consumer:
+    image: ashokkumarta/test_consumer
+    pull_policy: always
+    networks:
+      - ids-wide
+
+  data-validator:
+    image: ashokkumarta/test_validator
+    pull_policy: always
+    networks:
+      - ids-wide
+
+  data-processor:
+    image: ashokkumarta/test_processor
+    pull_policy: always
+    networks:
+      - ids-wide
+
+  data-auditor:
+    image: ashokkumarta/test_auditor
+    pull_policy: always
+    networks:
+      - ids-wide
+
+networks:
+  ids-wide:
+    driver: bridge

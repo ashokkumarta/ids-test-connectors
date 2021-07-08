@@ -3,7 +3,7 @@ services:
 
   # The core platform, mounts docker control socket and route definition into the image
   consumer-core:
-    image: ashokkumarta/ids/trusted-connector
+    image: ashokkumarta/ids-trusted-connector
     pull_policy: always
     tty: true
     stdin_open: true

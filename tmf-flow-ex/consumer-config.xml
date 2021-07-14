@@ -9,7 +9,7 @@
 
     <camel:sslContextParameters id="serverSslContext" certAlias="1.0.1">
         <camel:keyManagers keyPassword="password">
-            <camel:keyStore resource="etc/broker-keystore.p12" password="password"/>
+            <camel:keyStore resource="etc/consumer-keystore.p12" password="password"/>
         </camel:keyManagers>
         <camel:trustManagers>
             <camel:keyStore resource="etc/truststore.p12" password="password"/>
@@ -22,7 +22,27 @@
             <from uri="idscp2server://0.0.0.0:29292?sslContextParameters=#serverSslContext"/>
             <log message="Consumer - Received from provider: ${body}"/>
             
-			<log message="Consumer - Consuming data..." />
+			<log message="Consumer - Validating data..." />
+			<setHeader name="CamelHttpMethod">
+				<constant>PUT</constant>
+			</setHeader>
+            <setHeader name="content-type">
+                <simple>text/plain</simple>
+            </setHeader>
+			<to uri="http://data-validator:11107?awaitResponse=true" />
+
+
+			<log message="Consumer - Processing data..." />
+			<setHeader name="CamelHttpMethod">
+				<constant>PUT</constant>
+			</setHeader>
+            <setHeader name="content-type">
+                <simple>text/plain</simple>
+            </setHeader>
+			<to uri="http://data-processor:11104?awaitResponse=true" />
+
+
+			<log message="Consumer - Storing data..." />
 			<setHeader name="CamelHttpMethod">
 				<constant>POST</constant>
 			</setHeader>
@@ -30,6 +50,15 @@
                 <simple>text/plain</simple>
             </setHeader>
 			<to uri="http://data-consumer:11103?awaitResponse=true" />
+
+			<log message="Consumer - Auditing transaction..." />
+			<setHeader name="CamelHttpMethod">
+				<constant>PUT</constant>
+			</setHeader>
+            <setHeader name="content-type">
+                <simple>text/plain</simple>
+            </setHeader>
+			<to uri="http://data-auditor:11105?awaitResponse=true" />
             <log message="Consumer - Proecssing complete."/>
             
         </route>

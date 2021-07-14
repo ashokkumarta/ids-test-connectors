@@ -2,28 +2,33 @@ version: '3.7'
 services:
 
   # The core platform, mounts docker control socket and route definition into the image
-  broker-core:
-    image: ashokkumarta/ids-trusted-connector
+  provider-core:
+    image: fraunhoferaisec/trusted-connector-core:latest
     pull_policy: always
     tty: true
     stdin_open: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ../deploy/allow-all-flows.pl:/root/deploy/allow-all-flows.pl
-      - ../etc/settings.mapdb:/root/etc/settings.mapdb
-      - ../etc/broker-keystore.p12:/root/etc/broker-keystore.p12
+      - ../etc/settings2.mapdb:/root/etc/settings.mapdb
+      - ../etc/provider-keystore.p12:/root/etc/provider-keystore.p12
       - ../etc/truststore.p12:/root/etc/truststore.p12
-      - ./consumer-config.xml:/root/deploy/consumer-config.xml
+      - ./producer-config.xml:/root/deploy/producer-config.xml
     # Enable this port mappings for debugging or UI access from localhost
     ports:
-      - "8080:8080"
-      - "29292:29292"
+      - "8081:8080"
     networks:
       - ids-dist
       - ids-local
 
-  data-consumer:
-    image: ashokkumarta/test_consumer
+  data-generator:
+    image: ashokkumarta/test_provider
+    pull_policy: always
+    networks:
+      - ids-local
+
+  data-encryptor:
+    image: ashokkumarta/test_encryptor
     pull_policy: always
     networks:
       - ids-local

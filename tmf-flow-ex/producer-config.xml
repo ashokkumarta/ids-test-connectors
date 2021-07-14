@@ -10,7 +10,7 @@
 	<camel:sslContextParameters
 		id="clientSslContext" certAlias="1.0.1">
 		<camel:keyManagers keyPassword="password">
-			<camel:keyStore resource="etc/droker-keystore.p12"
+			<camel:keyStore resource="etc/provider-keystore.p12"
 				password="password" />
 		</camel:keyManagers>
 		<camel:trustManagers>
@@ -29,13 +29,22 @@
 			<log message="Producer - Generating data..." />
 			<to uri="http://data-generator:11102?awaitResponse=true" />
 
+			<log message="Producer - Encrypting data..." />
+			<setHeader name="CamelHttpMethod">
+				<constant>PUT</constant>
+			</setHeader>
+            <setHeader name="content-type">
+                <simple>text/plain</simple>
+            </setHeader>
+			<to uri="http://data-encryptor:11106?awaitResponse=true" />
+
             <setBody>
                 <simple>${bodyAs(String)}</simple>
             </setBody>
 			<log
 				message="Producer - Sending to consumer: ${body}" />
 			<to
-				uri="idscp2client://broker-core:29292?awaitResponse=true&amp;sslContextParameters=#clientSslContext" />
+				uri="idscp2client://consumer-core:29292?awaitResponse=true&amp;sslContextParameters=#clientSslContext" />
 			<log
 				message="Producer - Processing complete." />
 			<log
